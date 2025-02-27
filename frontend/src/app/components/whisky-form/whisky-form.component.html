@@ -1,0 +1,123 @@
+<form [formGroup]="whiskyForm" (ngSubmit)="onSubmit()">
+  <h2 mat-dialog-title>{{isEditMode ? 'Modifier' : 'Ajouter'}} un whisky</h2>
+
+  <mat-dialog-content>
+    <div class="form-container">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Nom</mat-label>
+          <input matInput formControlName="name" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Distillerie</mat-label>
+          <input matInput formControlName="distillery" required>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Pays</mat-label>
+          <input matInput formControlName="country" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Région</mat-label>
+          <input matInput formControlName="region" required>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Âge</mat-label>
+          <input matInput type="number" formControlName="age">
+          <span matSuffix>ans</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type" required>
+            <mat-option value="Single Malt">Single Malt</mat-option>
+            <mat-option value="Blend">Blend</mat-option>
+            <mat-option value="Bourbon">Bourbon</mat-option>
+            <mat-option value="Rye">Rye</mat-option>
+            <mat-option value="Other">Autre</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Volume</mat-label>
+          <input matInput type="number" formControlName="volume" required>
+          <span matSuffix>ml</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Degré d'alcool</mat-label>
+          <input matInput type="number" formControlName="alcohol_degree" required>
+          <span matSuffix>%</span>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Prix</mat-label>
+          <input matInput type="number" formControlName="price">
+          <span matSuffix>€</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Note personnelle</mat-label>
+          <input matInput type="number" formControlName="personal_note" min="0" max="5">
+          <span matSuffix>/5</span>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Date d'achat</mat-label>
+          <input matInput [matDatepicker]="purchasePicker" formControlName="purchase_date">
+          <mat-datepicker-toggle matSuffix [for]="purchasePicker"></mat-datepicker-toggle>
+          <mat-datepicker #purchasePicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Prix</mat-label>
+          <input matInput type="number" formControlName="price">
+          <span matSuffix>€</span>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Commentaires</mat-label>
+        <textarea matInput formControlName="comments" rows="3"></textarea>
+      </mat-form-field>
+
+      <div class="image-upload">
+        <input
+          type="file"
+          #fileInput
+          style="display: none"
+          (change)="onFileSelected($event)"
+          accept="image/*"
+        >
+        <button type="button" mat-stroked-button (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          {{imagePreview ? 'Changer l\'image' : 'Ajouter une image'}}
+        </button>
+
+        <div class="image-preview" *ngIf="imagePreview">
+          <img [src]="imagePreview" alt="Preview">
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">Annuler</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!whiskyForm.valid">
+      {{isEditMode ? 'Modifier' : 'Ajouter'}}
+    </button>
+  </mat-dialog-actions>
+</form>

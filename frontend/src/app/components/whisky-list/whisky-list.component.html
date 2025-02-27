@@ -1,0 +1,167 @@
+<div class="whisky-list-container">
+  <mat-toolbar color="primary">
+    <span>Librasky - Ma Cave à Whisky</span>
+    <span class="toolbar-spacer"></span>
+    <button mat-raised-button (click)="openWhiskyForm()" color="accent">
+      <mat-icon>add</mat-icon>
+      Ajouter un whisky
+    </button>
+  </mat-toolbar>
+
+  <div class="content-container">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Ma Collection</mat-card-title>
+        <div class="header-actions">
+          <button mat-stroked-button (click)="exportWhiskies()">
+            <mat-icon>download</mat-icon>
+            Exporter
+          </button>
+          <input
+            type="file"
+            #fileInput
+            style="display: none"
+            (change)="onFileSelected($event)"
+            accept=".json"
+          >
+          <button mat-stroked-button (click)="fileInput.click()">
+            <mat-icon>upload</mat-icon>
+            Importer
+          </button>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+        <table mat-table [dataSource]="whiskies" multiTemplateDataRows class="mat-elevation-z8">
+          <!-- Image Column -->
+          <ng-container matColumnDef="image">
+            <th mat-header-cell *matHeaderCellDef>Image</th>
+            <td mat-cell *matCellDef="let whisky">
+              <img *ngIf="whisky.image" [src]="'data:image/jpeg;base64,' + whisky.image" 
+                   alt="Whisky image" class="whisky-thumbnail">
+              <mat-icon *ngIf="!whisky.image">local_bar</mat-icon>
+            </td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let whisky">{{whisky.name}}</td>
+          </ng-container>
+
+          <!-- Distillery Column -->
+          <ng-container matColumnDef="distillery">
+            <th mat-header-cell *matHeaderCellDef>Distillerie</th>
+            <td mat-cell *matCellDef="let whisky">{{whisky.distillery}}</td>
+          </ng-container>
+
+          <!-- Type Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let whisky">{{whisky.type}}</td>
+          </ng-container>
+
+          <!-- Age Column -->
+          <ng-container matColumnDef="age">
+            <th mat-header-cell *matHeaderCellDef>Âge</th>
+            <td mat-cell *matCellDef="let whisky">{{whisky.age}} ans</td>
+          </ng-container>
+
+          <!-- Country Column -->
+          <ng-container matColumnDef="country">
+            <th mat-header-cell *matHeaderCellDef>Pays</th>
+            <td mat-cell *matCellDef="let whisky">{{whisky.country}}</td>
+          </ng-container>
+
+          <!-- Personal Note Column -->
+          <ng-container matColumnDef="personal_note">
+            <th mat-header-cell *matHeaderCellDef>Note</th>
+            <td mat-cell *matCellDef="let whisky">
+              <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                        [class.filled]="star <= whisky.personal_note">
+                star
+              </mat-icon>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let whisky">
+              <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openWhiskyForm(whisky)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Modifier</span>
+                </button>
+                <button mat-menu-item (click)="deleteWhisky(whisky.id)">
+                  <mat-icon>delete</mat-icon>
+                  <span>Supprimer</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <!-- Expanded Detail Column -->
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let whisky" [attr.colspan]="displayedColumns.length">
+              <div class="whisky-detail" [@detailExpand]="whisky == expandedElement ? 'expanded' : 'collapsed'">
+                <div class="detail-content">
+                  <div class="detail-image" *ngIf="whisky.image">
+                    <img [src]="'data:image/jpeg;base64,' + whisky.image" [alt]="whisky.name">
+                  </div>
+                  <div class="detail-info">
+                    <h3>{{whisky.name}}</h3>
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="label">Distillerie:</span>
+                        <span>{{whisky.distillery}}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="label">Région:</span>
+                        <span>{{whisky.region}}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="label">Volume:</span>
+                        <span>{{whisky.volume}}ml</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="label">Degré:</span>
+                        <span>{{whisky.alcohol_degree}}%</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="label">Prix:</span>
+                        <span>{{whisky.price}}€</span>
+                      </div>
+                      <div class="info-item" *ngIf="whisky.purchase_date">
+                        <span class="label">Date d'achat:</span>
+                        <span>{{whisky.purchase_date | date:'dd/MM/yyyy'}}</span>
+                      </div>
+                    </div>
+                    <div class="comments" *ngIf="whisky.comments">
+                      <h4>Commentaires</h4>
+                      <p>{{whisky.comments}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let whisky; columns: displayedColumns;"
+              class="whisky-row"
+              [class.expanded-row]="expandedElement === whisky"
+              (click)="expandedElement = expandedElement === whisky ? null : whisky">
+          </tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row">
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
