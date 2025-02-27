@@ -91,3 +91,25 @@ async def delete_whisky(whisky_id: int, db: Session = Depends(get_db)):
     db.delete(whisky)
     db.commit()
     return {"message": "Whisky deleted successfully"}
+
+@router.get("/export", response_class=JSONResponse)
+async def export_whiskies(db: Session = Depends(get_db)):
+    whiskies = db.query(Whisky).all()
+    whisky_list = [whisky.to_dict() for whisky in whiskies]
+    
+    # Créer un objet d'export avec metadata
+    export_data = {
+        "version": "1.0",
+        "export_date": str(date.today()),
+        "whiskies": whisky_list
+    }
+    
+    # Définir le nom du fichier pour le téléchargement
+    headers = {
+        'Content-Disposition': 'attachment; filename="whiskies_export.json"'
+    }
+    
+    return JSONResponse(
+        content=export_data,
+        headers=headers
+    )
