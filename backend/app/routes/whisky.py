@@ -45,6 +45,79 @@ async def export_whiskies(db: Session = Depends(get_db)):
         headers=headers
     )
 
+# Modifiez la route d'import
+@router.post("/import")
+async def import_whiskies(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    try:
+        content = await file.read()
+        data = json.loads(content.decode())
+        
+        if not isinstance(data, dict) or "whiskies" not in data:
+            raise HTTPException(
+                status_code=422,
+                detail="Format invalide : le fichier doit contenir une clé 'whiskies'"
+            )
+        
+        imported_count = 0
+        for whisky_data in data["whiskies"]:
+            # Nettoyage des données
+            whisky_data.pop("id", None)
+            whisky_data.pop("date_added", None)
+            
+            # Conversion de l'image base64 en bytes si présente
+            if "image" in whisky_data and whisky_data["image"]:
+                try:
+                    whisky_data["image"] = base64.b64decode(whisky_data["image"])
+                except:
+                    raise HTTPException(
+                        status_code=422,
+                        detail=f"Format d'image invalide pour le whisky {imported_count + 1}"
+                    )
+            
+            # Conversion de la date d'achat si présente
+            if "purchase_date" in whisky_data and whisky_data["purchase_date"]:
+                try:
+                    whisky_data["purchase_date"] = datetime.strptime(
+                        whisky_data["purchase_date"], 
+                        "%Y-%m-%d"
+                    ).date()
+                except ValueError:
+                    raise HTTPException(
+                        status_code=422,
+                        detail=f"Format de date invalide pour purchase_date: {whisky_data['purchase_date']}"
+                    )
+            
+            try:
+                new_whisky = Whisky(**whisky_data)
+                db.add(new_whisky)
+                imported_count += 1
+            except Exception as e:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Erreur de validation pour le whisky {imported_count + 1}: {str(e)}"
+                )
+            
+        db.commit()
+        
+        return {
+            "message": f"Import réussi de {imported_count} whiskies",
+            "count": imported_count
+        }
+        
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=422,
+            detail="Le fichier n'est pas un JSON valide"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur lors de l'import: {str(e)}"
+        )
+
 # Ensuite les routes avec paramètres
 @router.get("/{whisky_id}", response_model=WhiskyResponse)
 async def read_whisky(whisky_id: int, db: Session = Depends(get_db)):
