@@ -24,6 +24,28 @@ async def read_whiskies(
     whiskies = db.query(Whisky).offset(skip).limit(limit).all()
     return [whisky.to_dict() for whisky in whiskies]
 
+# Ajouter la route d'export AVANT les routes avec paramètres
+@router.get("/export", response_class=JSONResponse)
+async def export_whiskies(db: Session = Depends(get_db)):
+    whiskies = db.query(Whisky).all()
+    whisky_list = [whisky.to_dict() for whisky in whiskies]
+    
+    export_data = {
+        "version": "1.0",
+        "export_date": str(date.today()),
+        "whiskies": whisky_list
+    }
+    
+    headers = {
+        'Content-Disposition': 'attachment; filename="whiskies_export.json"'
+    }
+    
+    return JSONResponse(
+        content=export_data,
+        headers=headers
+    )
+
+# Ensuite les routes avec paramètres
 @router.get("/{whisky_id}", response_model=WhiskyResponse)
 async def read_whisky(whisky_id: int, db: Session = Depends(get_db)):
     whisky = db.query(Whisky).filter(Whisky.id == whisky_id).first()
@@ -91,25 +113,3 @@ async def delete_whisky(whisky_id: int, db: Session = Depends(get_db)):
     db.delete(whisky)
     db.commit()
     return {"message": "Whisky deleted successfully"}
-
-@router.get("/export", response_class=JSONResponse)
-async def export_whiskies(db: Session = Depends(get_db)):
-    whiskies = db.query(Whisky).all()
-    whisky_list = [whisky.to_dict() for whisky in whiskies]
-    
-    # Créer un objet d'export avec metadata
-    export_data = {
-        "version": "1.0",
-        "export_date": str(date.today()),
-        "whiskies": whisky_list
-    }
-    
-    # Définir le nom du fichier pour le téléchargement
-    headers = {
-        'Content-Disposition': 'attachment; filename="whiskies_export.json"'
-    }
-    
-    return JSONResponse(
-        content=export_data,
-        headers=headers
-    )
