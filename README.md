@@ -21,12 +21,6 @@ Librasky est une application web permettant de gérer votre collection de whiski
 
 ## Structure du Projet
 
-## Installation
-
-### Prérequis
-- Python 3.9+
-- Node.js 16+
-- npm 8+
 
 ### Installation du Backend
 
