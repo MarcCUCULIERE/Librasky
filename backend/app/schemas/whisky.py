@@ -1,6 +1,11 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import date
+
+class BottleState(BaseModel):
+    id: int
+    is_opened: bool = False
+    remaining_percentage: int = 100
 
 class WhiskyBase(BaseModel):
     name: str
@@ -16,6 +21,8 @@ class WhiskyBase(BaseModel):
     alcohol_degree: float
     image: Optional[str] = None
     purchase_date: Optional[date] = None  # Ajout de la date d'achat
+    quantity: int = 1
+    bottles: List[BottleState] = []
 
 class WhiskyCreate(WhiskyBase):
     date_added: Optional[date] = None

@@ -1,41 +1,44 @@
-export interface Whisky {
-    id?: number;
-    name: string;
-    distillery: string;
-    country: string;
-    region: string;
-    age?: number;
-    type: string;
-    personal_note?: number;
-    comments?: string;
-    image?: string;
-    date_added?: string;
-    purchase_date?: Date;
-    price?: number;
-    volume: number;
-    alcohol_degree: number;
+// Définir l'interface pour l'état d'une bouteille
+export interface BottleState {
+  id: number;
+  is_opened: boolean;
+  remaining_percentage: number;
 }
 
-// Create a new type for the image field that can be either string or File
+// Type pour le champ image
 type ImageField = string | File;
 
-// Define WhiskyCreateUpdate by picking specific fields and overriding image type
-export interface WhiskyCreateUpdate {
-    name: string;
-    distillery: string;
-    country: string;
-    region: string;
-    age?: number;
-    type: string;
-    personal_note?: number;
-    comments?: string;
-    image?: ImageField;
-    purchase_date?: Date;
-    price?: number;
-    volume: number;
-    alcohol_degree: number;
+// Interface de base pour les propriétés communes
+export interface WhiskyBase {
+  name: string;
+  distillery: string;
+  country: string;
+  region: string;
+  age?: number;
+  type: string;
+  personal_note?: number;
+  comments?: string;
+  price?: number;
+  volume: number;
+  alcohol_degree: number;
+  quantity?: number;
+  bottles?: BottleState[];
+  purchase_date?: string | Date;
 }
 
+// Interface principale pour un whisky
+export interface Whisky extends WhiskyBase {
+  id?: number;
+  date_added?: string;
+  image?: string;
+}
+
+// Interface pour la création/mise à jour
+export interface WhiskyCreateUpdate extends WhiskyBase {
+  image?: ImageField;
+}
+
+// Interface pour l'export
 export interface WhiskyExport {
-    whiskies: Whisky[];
+  whiskies: Whisky[];
 }

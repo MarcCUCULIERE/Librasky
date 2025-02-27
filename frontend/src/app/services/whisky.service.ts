@@ -45,7 +45,6 @@ export class WhiskyService {
         const whiskyData = {
           ...whisky,
           image: processedImage ? processedImage.split(',')[1] : undefined,
-          // Formatez la date au format ISO
           purchase_date: whisky.purchase_date ? this.formatDate(whisky.purchase_date) : undefined
         };
         return this.http.put<Whisky>(`${this.apiUrl}/${id}`, whiskyData);
@@ -76,8 +75,17 @@ export class WhiskyService {
     });
   }
 
-  // Ajoutez cette méthode helper pour formater la date
-  private formatDate(date: Date): string {
+  // Modifions la méthode formatDate pour gérer les deux types
+  private formatDate(date: string | Date): string {
+    if (typeof date === 'string') {
+      // Si c'est déjà une chaîne, vérifier si elle est au bon format
+      if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return date;
+      }
+      // Sinon, convertir la chaîne en Date
+      return new Date(date).toISOString().split('T')[0];
+    }
+    // Si c'est déjà un objet Date
     return date.toISOString().split('T')[0];
   }
 }

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, LargeBinary
+from sqlalchemy import Column, Integer, String, Float, Date, JSON, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 import base64
 from datetime import date
@@ -23,6 +23,8 @@ class Whisky(Base):
     price = Column(Float)
     volume = Column(Integer)
     alcohol_degree = Column(Float)
+    quantity = Column(Integer, default=1)
+    bottles = Column(JSON, default=list)  # Stockage JSON pour les bouteilles
 
     def to_dict(self):
         result = {
@@ -40,6 +42,8 @@ class Whisky(Base):
             "price": self.price,
             "volume": self.volume,
             "alcohol_degree": self.alcohol_degree,
+            "quantity": self.quantity,
+            "bottles": self.bottles or [],
             "image": base64.b64encode(self.image).decode('utf-8') if self.image else None
         }
         return result

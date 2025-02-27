@@ -146,6 +146,49 @@
                       <h4>Commentaires</h4>
                       <p>{{whisky.comments}}</p>
                     </div>
+                    <div class="bottles-section">
+                      <h4>État des bouteilles</h4>
+                      <div class="bottles-grid">
+                        <div *ngFor="let bottle of whisky.bottles" class="bottle-card">
+                          <div class="bottle-header">
+                            <!-- Bouteille fermée -->
+                            <div *ngIf="!bottle.is_opened" class="bottle-sealed">
+                              <mat-icon class="bottle-icon">liquor</mat-icon>
+                              <span class="sealed-label">Bouteille scellée</span>
+                            </div>
+
+                            <!-- Bouteille ouverte -->
+                            <div *ngIf="bottle.is_opened" class="bottle-container">
+                              <div class="bottle-shape">
+                                <div class="bottle-neck"></div>
+                                <div class="bottle-body">
+                                  <div class="liquid-level" 
+                                       [style.height]="bottle.remaining_percentage + '%'"
+                                       [style.backgroundColor]="getLevelColor(bottle.remaining_percentage)">
+                                  </div>
+                                </div>
+                                <div class="percentage-label">{{bottle.remaining_percentage}}%</div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="bottle-actions">
+                            <button mat-icon-button (click)="toggleBottleState(whisky, bottle)">
+                              <mat-icon>{{bottle.is_opened ? 'lock_open' : 'lock'}}</mat-icon>
+                            </button>  
+<mat-slider [min]="0" [max]="100" [step]="20">
+                              <input matSliderThumb
+                                       [value]="bottle.remaining_percentage"
+                                       (valueChange)="updateBottleLevel(whisky, bottle, $event)">
+                            </mat-slider>
+                          </div>
+                        </div>
+                        
+                        <button mat-stroked-button (click)="addBottle(whisky)">
+                          <mat-icon>add</mat-icon> Ajouter une bouteille
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
